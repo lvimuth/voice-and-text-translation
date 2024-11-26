@@ -3,10 +3,21 @@
 import "regenerator-runtime";
 import TextArea from "@/app/_components/inputs/TextArea";
 import FileUpload from "@/app/_components/inputs/FileUpload";
+import LinkPaste from "@/app/_components/inputs/LinkPaste";
+import LanguageSelector from "@/app/_components/inputs/LanguageSelector";
 import React, { ChangeEvent, useState } from "react";
 import SpeechRecognitionComponent from "@/app/_components/SpeechRecognition/SpeechRecognition";
-import { IconFileUpload, IconVolume } from "@tabler/icons-react";
-import {rtfToText} from "@/utils/rtfToText"
+import {
+  IconCopy,
+  IconStar,
+  IconThumbDown,
+  IconThumbUp,
+  IconVolume,
+} from "@tabler/icons-react";
+import { rtfToText } from "@/utils/rtfToText";
+import useTranslate from "@/hooks/useTranslate";
+import SvgDecorations from "@/app/_components/SvgDecorations";
+import CategoryLinks from "@/app/_components/categoryLinks";
 
 export default function Home() {
   const [sourceText, setSourceText] = useState<string>("");
@@ -14,14 +25,15 @@ export default function Home() {
   const [favorite, setFavorite] = useState<boolean>(false);
   const [languages] = useState<string[]>([
     "English",
+    "Finnish",
     "Spanish",
     "French",
     "German",
     "Chinese",
   ]);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("Spanish");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("Finnish");
 
-  // const targetText = useTranslate(sourceText, selectedLanguage);
+  const targetText = useTranslate(sourceText, selectedLanguage);
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,11 +59,11 @@ export default function Home() {
     }
   };
 
-  // const handleCopyToClipboard = () => {
-  //   navigator.clipboard.writeText(targetText);
-  //   setCopied(true);
-  //   setTimeout(() => setCopied(false), 2000);
-  // };
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(targetText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleLike = () => {
     // Implement like logic
@@ -61,14 +73,14 @@ export default function Home() {
     // Implement dislike logic
   };
 
-  // const handleFavorite = () => {
-  //   setFavorite(!favorite);
-  //   if (!favorite) {
-  //     localStorage.setItem("favoriteTranslation", targetText);
-  //   } else {
-  //     localStorage.removeItem("favoriteTranslation");
-  //   }
-  // };
+  const handleFavorite = () => {
+    setFavorite(!favorite);
+    if (!favorite) {
+      localStorage.setItem("favoriteTranslation", targetText);
+    } else {
+      localStorage.removeItem("favoriteTranslation");
+    }
+  };
 
   const handleAudioPlayback = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -90,7 +102,7 @@ export default function Home() {
                 world
               </p>
               <div className="mt-12 sm:mt-12 mx-auto max-w-3xl relative">
-                <div className="grid gap-4 md:grid-cols-4 grid-cols-1">
+                <div className="grid gap-4 md:grid-cols-2 grid-cols-1">
                   <div className="relative z-10 flex flex-col space-x-3 border rounded-lg shadow-lg bg-neutral-900 border-neutral-700 shadow-gray-900/20">
                     <TextArea
                       id="source-language"
@@ -112,10 +124,51 @@ export default function Home() {
                         <FileUpload handleFileUpload={handleFileUpload} />
                         <LinkPaste handleLinkPaste={handleLinkPaste} />
                       </span>
+                      <span className="text-sm pr-4">
+                        {sourceText.length} / 2000
+                      </span>
+                    </div>
+                  </div>
+                  <div className="relative z-10 flex flex-col space-x-3 p-3  border rounded-lg shadow-lg  bg-neutral-900 border-neutral-700 shadow-gray-900/20">
+                    <TextArea
+                      id="target-language"
+                      value={targetText}
+                      onChange={() => {}}
+                      placeholder="Target Language"
+                    />
+                    <div className="flex flex-row justify-between w-full">
+                      <span className="cursor-pointer flex items-center space-x-2 flex-row">
+                        <LanguageSelector
+                          selectedLanguage={selectedLanguage}
+                          setSelectedLanguage={setSelectedLanguage}
+                          languages={languages}
+                        />
+                        <IconVolume
+                          size={22}
+                          onClick={() => handleAudioPlayback(targetText)}
+                        />
+                      </span>
+                      <div className="flex flex-row items-center space-x-2 pr-4 cursor-pointer">
+                        <IconCopy size={22} onClick={handleCopyToClipboard} />
+                        {copied && (
+                          <span className="text-xs text-green-500">
+                            Copied!
+                          </span>
+                        )}
+                        <IconThumbUp size={22} onClick={handleLike} />
+                        <IconThumbDown size={22} onClick={handleDislike} />
+                        <IconStar
+                          size={22}
+                          onClick={handleFavorite}
+                          className={favorite ? "text-yellow-500" : ""}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
+                <SvgDecorations />
               </div>
+              <CategoryLinks />
             </div>
           </div>
         </div>
