@@ -2,9 +2,11 @@
 
 import "regenerator-runtime";
 import TextArea from "@/app/_components/inputs/TextArea";
+import FileUpload from "@/app/_components/inputs/FileUpload";
 import React, { ChangeEvent, useState } from "react";
 import SpeechRecognitionComponent from "@/app/_components/SpeechRecognition/SpeechRecognition";
 import { IconFileUpload, IconVolume } from "@tabler/icons-react";
+import {rtfToText} from "@/utils/rtfToText"
 
 export default function Home() {
   const [sourceText, setSourceText] = useState<string>("");
@@ -21,18 +23,18 @@ export default function Home() {
 
   // const targetText = useTranslate(sourceText, selectedLanguage);
 
-  // const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = () => {
-  //       const rtfContent = reader.result as string;
-  //       const text = rtfToText(rtfContent);
-  //       setSourceText(text);
-  //     };
-  //     reader.readAsText(file);
-  //   }
-  // };
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const rtfContent = reader.result as string;
+        const text = rtfToText(rtfContent);
+        setSourceText(text);
+      };
+      reader.readAsText(file);
+    }
+  };
 
   const handleLinkPaste = async (e: ChangeEvent<HTMLInputElement>) => {
     const link = e.target.value;
@@ -107,8 +109,8 @@ export default function Home() {
                           size={22}
                           onClick={() => handleAudioPlayback(sourceText)}
                         />
-                        {/* <IconFileUpload handleFileUpload={handleFileUpload} />
-                      <LinkPaste handleLinkPaste={handleLinkPaste} /> */}
+                        <FileUpload handleFileUpload={handleFileUpload} />
+                        <LinkPaste handleLinkPaste={handleLinkPaste} />
                       </span>
                     </div>
                   </div>
